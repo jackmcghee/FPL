@@ -1,0 +1,59 @@
+{
+    "draft": {
+        "type": "draft",
+        "latest_week": 17,
+        "prefix_folder": "draft",
+		"filepath": "",
+        "players_checked": "11/05/22",
+        "players_updated": "11/05/22",
+        "gw_updated": "11/05/22",
+        "bootstrap_csv_list": [
+            "teams",
+            "elements",
+            "element_types"
+        ],
+        "attributes": [
+            "web_name",
+            "ict_index",
+            "goals_scored",
+            "assists",
+            "draft_rank",
+            "total_points"
+        ],
+        "league_id": 11291,
+        "round_name": "event",
+        "subfolders": [
+            "bootstrap-static",
+            "Player Full",
+            "Player Fixtures",
+            "Player History",
+            "Member Team Detailed",
+            "Member Team Overall",
+            "Gameweek History",
+            "Stats",
+            "Overall",
+            "Team Fixtures",
+            "League",
+            "Graphs",
+			"Raw Data"
+        ]
+    },
+    "general": {
+        "type": "general",
+        "season_folder": "21_22",
+        "other_folders": [
+            "Logs",
+            "Status"
+        ],
+        "concat_list": [
+            "id",
+            "detail",
+            "fixture",
+            "opponent_team"
+        ],
+        "exception_list": [
+            "element",
+            "event"
+        ]
+    }
+}
