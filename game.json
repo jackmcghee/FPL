@@ -36,11 +36,12 @@
             "League",
             "Graphs",
 			"Raw Data"
-        ]
+        ],
+		"Havertz Graph id": 30
     },
     "general": {
         "type": "general",
-        "season_folder": "21_22",
+        "season_folder": "22_23",
         "other_folders": [
             "Logs",
             "Status"
