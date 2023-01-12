@@ -1,0 +1,43 @@
+"""A Havertz graph is a bar plot that tracks a player's gw scores versus their ownership
+it can be used to identify a manager's hilarious misstep as they transfer a player out, only for said player to 
+then get a haul of points"""
+
+import pandas as pd
+from os.path import join
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+analysis_dir='C:\\Users\\Knick\\Documents\\Python\\Projects - Independent\\FPL Main\\22_23\\draft\\processed'
+player_history_dir=join(analysis_dir,'player_history')
+
+element_id = e #TODO this obviously needs to be configurable, but for now check the bootstrap element file
+
+all_GWs=pd.read_csv(join(player_history_dir,'player_history_annotated.csv'))
+plyer = all_GWs.loc[all_GWs['element']==e] 
+plyer_graph_data = plyer.loc[:,['total_points','event','manager','started']]
+plyer_graph_data['manager'] = plyer['manager'].fillna('None')
+plyer_graph_data['started'] = plyer['started']#.fillna('False')
+plyer_graph_data_final = plyer_graph_data.reset_index(drop=True)
+player_owners = plyer_graph_data_final['manager'].unique()
+
+sns.set(rc = {'figure.figsize':(10,10)})
+sns.set_palette("pastel")
+
+games_benched = ['Sub' if x == 'False' else None for x in plyer_graph_data_final['started']]
+
+fig, ax = plt.subplots()
+ax = sns.barplot(data=plyer_graph_data_final,x='event',y='total_points',
+                 hue='manager',dodge=False,saturation=0.7,hue_order=player_owners)
+for x,p in zip(ax.patches,games_benched):
+    ax.annotate(p, 
+                   (x.get_x() + x.get_width() / 2., 1), 
+                   ha = 'center', va = 'center', 
+                   xytext = (0, 9), 
+                   textcoords = 'offset points',
+                   color='black')
+plt.xlabel("GW", size=14)
+plt.ylabel("GW Points", size=14)
+player_name = list(plyer.web_name)[0]
+plt.title(f'{player_name} Points and Ownership 22/23 up to GW16',size=20)
+plt.savefig(f"{analysis_dir}/graphs/bar_plots/gw_reviews/{player_name}")
+plt.show()
