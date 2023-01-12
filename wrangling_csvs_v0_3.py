@@ -3,18 +3,36 @@
 import pandas as pd
 pd.options.mode.chained_assignment = None 
 from sys import path
-from os.path import join
-path.append('C:/Users/Knick/Documents/Python/Projects - Independent/FPL Main/FPL/Scripts/my_classes')
-import FPL_4 as fpl
+from os import chdir, getcwd
+from os.path import join, abspath, dirname
+import json
+
 from itertools import product, combinations
 
-base_dir='C:/Users/Knick/Documents/Python/Projects - Independent/FPL Main/22_23/draft'
-download_dir=join(base_dir,'extracts')
-analysis_dir=join(base_dir,'processed')
+#this is setting up the relative paths
+setup_folder = dirname(abspath(__file__))
+chdir(setup_folder)
+chdir("..") #up one level
+season_dir = getcwd()
+chdir("..")
+root_dir = getcwd()
+path.append(join(setup_folder,'my_classes')) 
+
+import FPL_4 as fpl
+
+
+settings_folder = join(season_dir,'settings')
+with open(join(settings_folder,'game.json'),encoding='utf8') as f:
+    settings = json.load(f)
+
+draft_folder=settings['draft']['prefix_folder']
+draft_dir = join(season_dir,draft_folder)
+download_dir=join(draft_dir,'extracts')
+analysis_dir=join(draft_dir,'processed')
 
 default_enc="utf-8-sig"
 
-runner=fpl.draft_runner(base_dir)
+runner=fpl.draft_runner(draft_dir)
 runner.create_folder(analysis_dir)
 runner.set_target_dir(analysis_dir)
 
@@ -49,13 +67,13 @@ def groupby_all(folder,dataframe,columns_to_group,func_list=None,prefix=""):
             column_names=f"{prefix}{'_'.join(col)}"
             folder_loc=join(fldr_list[folder]['grouped'])
             if 'sum' in func_list:
-                grped_combo.sum().to_csv(join(folder_loc,f"{column_names}_sum.csv"),encoding=default_enc)
+                grped_combo.sum(numeric_only=True).to_csv(join(folder_loc,f"{column_names}_sum.csv"),encoding=default_enc)
             if 'max' in func_list:
                 grped_combo.max(numeric_only=True).to_csv(join(folder_loc,f"{column_names}_max.csv"),encoding=default_enc)
             if 'min' in func_list:
                 grped_combo.min(numeric_only=True).to_csv(join(folder_loc,f"{column_names}_min.csv"),encoding=default_enc)
             if 'count' in func_list:
-                grped_combo.count().to_csv(join(folder_loc,f"{column_names}_count.csv"),encoding=default_enc)
+                grped_combo.count(numeric_only=True).to_csv(join(folder_loc,f"{column_names}_count.csv"),encoding=default_enc)
             if 'mean' in func_list:
                 grped_combo.mean(numeric_only=True).to_csv(join(folder_loc,f"{column_names}_mean.csv"),encoding=default_enc)
             if 'median' in func_list:
@@ -65,7 +83,7 @@ def groupby_all(folder,dataframe,columns_to_group,func_list=None,prefix=""):
             if 'nunique' in func_list:
                 grped_combo.nunique().to_csv(join(folder_loc,f"{column_names}_unique.csv"),encoding=default_enc)
             if 'std' in func_list:
-                grped_combo.std().to_csv(join(folder_loc,f"{column_names}_sum.csv"),encoding=default_enc)        
+                grped_combo.std(numeric_only=True).to_csv(join(folder_loc,f"{column_names}_sum.csv"),encoding=default_enc)        
 
 #this part maps the team and position name onto the element
 summary_dir=join(download_dir,'summary') #elements
@@ -120,7 +138,7 @@ groupby_all(folder=plyr_fldr,dataframe=player_history_df_new,columns_to_group=pl
 
 #this is getting the manager league id and manaer short_name
 league_dir=join(download_dir,'league') #league
-manager_details=join(league_dir,'member_details/league_member_details_league_entries.csv')
+manager_details=join(league_dir,'manager_details/league_manager_details_league_entries.csv')
 man_df=pd.read_csv(manager_details,index_col=0)
 man_df_slim=man_df.loc[:,['entry_id','short_name']].set_index('entry_id').rename(columns={'short_name':'manager'})
 
@@ -203,7 +221,7 @@ score_summary_trans['gw_rank_by_gw']=score_summary_trans.groupby('event').rank(a
 score_summary_trans.drop(['rank','rank_sort','event_transfers'],axis=1,inplace=True)
 score_summary_trans.drop('points_on_bench',axis=1,inplace=True)
 subs.rename(columns={'total_points':'points_on_bench'},inplace=True) 
-subs_grouped_df=subs.groupby(['event','manager']).sum()['points_on_bench']
+subs_grouped_df=subs.groupby(['event','manager']).sum(numeric_only=True)['points_on_bench']
 score_summary_trans_subs=pd.merge(score_summary_trans,subs_grouped_df,how='left',left_on=['event','entry'],right_index=True) #addings number of points on bench
 score_summary_trans_subs['points_inc_bench']=score_summary_trans_subs['points_on_bench']+score_summary_trans_subs['gw_points']
 score_summary_trans_subs['bench_points_div_total_points']=score_summary_trans_subs['points_on_bench']/score_summary_trans_subs['gw_points']
@@ -264,7 +282,7 @@ players['ideal']=players.index.map(all_man_all_team['ideal'])
 players['manager']=players['manager'].map(man_df_slim['manager'])
 players.to_csv(join(fldr_list['player_history']['main'],'player_history_annotated.csv'),encoding=default_enc)
 max_round=players['event'].max()
-most_recent_gw=players.loc[players['event']==max_round].drop_duplicates().set_index('element') #only the most recent round and ignore double gws (will be the same owner anyway)
+most_recent_gw=players.loc[players['event']==max_round].drop_duplicates(['element','event']).set_index('element') #only the most recent round and ignore double gws (will be the same owner anyway)
 
 #this is dealing with draft picks
 draft_picks_dir=join(league_dir,'draft_picks')
@@ -277,5 +295,5 @@ dp_df['current_owner']=dp_df['element'].map(most_recent_gw['manager'])
 dp_df.to_csv(join(fldr_list['draft_picks']['main'],'draft_picks_annotated.csv'),encoding=default_enc)
 
 dp_df_slim=dp_df.loc[:,['id','player_last_name','round','was_auto','current_points','current_points_rank']]
-dp_df_slim.groupby('player_last_name').sum().to_csv(join(fldr_list['draft_picks']['grouped'],'draft_picks_by_manager.csv'),encoding=default_enc)
-dp_df_slim.groupby('round').sum().to_csv(join(fldr_list['draft_picks']['grouped'],'draft_picks_by_manager.csv'),encoding=default_enc)
+dp_df_slim.groupby('player_last_name').sum(numeric_only=True).to_csv(join(fldr_list['draft_picks']['grouped'],'draft_picks_by_manager.csv'),encoding=default_enc)
+dp_df_slim.groupby('round').sum(numeric_only=True).to_csv(join(fldr_list['draft_picks']['grouped'],'draft_picks_by_manager.csv'),encoding=default_enc)
