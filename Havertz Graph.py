@@ -36,7 +36,7 @@ runner.create_folder('bar_plots/gw_reviews',use_parent_dir=True)
 player_history_dir=join(analysis_dir,'player_history')
 
 all_GWs=pd.read_csv(join(player_history_dir,'player_history_annotated.csv'))
-plyer = all_GWs.loc[all_GWs['element']==30] #TODO this obviously needs to be configurable
+plyer = all_GWs.loc[all_GWs['element']==settings['draft']['Havertz Graph']] 
 plyer_graph_data = plyer.loc[:,['total_points','event','manager','started']]
 plyer_graph_data['manager'] = plyer['manager'].fillna('None')
 plyer_graph_data['started'] = plyer['started']#.fillna('False')
