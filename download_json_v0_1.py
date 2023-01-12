@@ -21,11 +21,11 @@ chdir("..") #up one level
 season_dir = getcwd()
 chdir("..")
 root_dir = getcwd()
-path.append(join(root_dir,'FPL/Scripts/my_classes')) 
+path.append(join(setup_folder,'my_classes')) 
 
 import FPL_4 as fpl
 
-settings_folder = join(setup_folder,'settings')
+settings_folder = join(season_dir,'settings')
 with open(join(settings_folder,'game.json'),encoding='utf8') as f:
     settings = json.load(f)
 
@@ -34,6 +34,8 @@ draft_folder=settings['draft']['prefix_folder']
 draft_dir = join(season_dir,draft_folder)
 extract_dir = join(draft_dir,'extracts')
 runner=fpl.draft_runner(extract_dir) #this is the instance that will download everything
+runner.create_folder(draft_dir)
+runner.create_folder(extract_dir)
 
 settings['draft']['filepath'] = extract_dir
 
@@ -56,7 +58,7 @@ min_gw = 1
 max_gw = None
 MAX_FINAL_GW=38
 manager_id_list = None #[39205]
-league_id = 11291
+league_id = settings['draft']['league_id'] #from the game file
 chdir(extract_dir)
 time_start=time.perf_counter()
 logging.info(f'Initial variables defined\ntarget folder address: {extract_dir}\
@@ -98,7 +100,7 @@ trans_dir = join(league_dir,'transactions') #this part deals with transactions
 logging.info(f'creating folder {trans_dir}')
 runner.create_folder(trans_dir)
 runner.set_target_dir(trans_dir)
-url_suffix = f'draft/league/{league_id}/transactions'
+url_suffix = f'draft/league/{league_id}/transactions' 
 logging.info(f'downloading {runner.base_url}/{url_suffix}')
 runner.download(url_suffix,'transactions.json',lambda x: 'transactions' in x.keys())
 runner.unpack_to_csv()
