@@ -1,0 +1,22 @@
+How to set this up until I put it into a compressed file or something:
+
+1. Create one file called FPL or whatever you like
+2. Create two files inside it, one called 'scripts' and one called 'settings'.
+3. Create one file inside the scripts folder called 'my_classes'
+4. Within the 'my_classes' folder, put the FPL_4.py file.
+5. Move up one folder and within the scripts directory put the four other scripts:
+'download_json', wrangling_csvs', 'Graph Creation', 'Havertz Graph'
+6. Move to the settings folder and put the game.json file in there
+7. Open the game.json and update the league_id to your draft league id. This can be found in the url when you navigate from 'https://draft.premierleague.com/league' to the 'Edit League'. This is only an option for league admins, not sure how to find it if you're not an admin.
+7b. You can also change the name of the 'prefix_folder', this dictates the folder that the data will flow into
+8. Run 3 of the python scripts in the scripts folder in this order: 'download_json', wrangling_csvs', 'Graph Creation'
+9. Review the outputs in the directory: <folder created in part 1>/<prefix_folder>
+
+Havertz Graphs are bar graphs that track a player's GW scores vs their draft league ownership. The id is configurable in the game.json Havertz Graph id field. Once the first three scripts have been run, update the id to a valid player id (get this from the bootstrap csv in the directory draft\processed\bootstrap) and run the python script to generate a graph.
+
+Info about the outputs:
+Raw data is stored in the folder 'extracts'
+Processed data and graphs are stored in the folder 'processed'
+Havertz Graphs are stored in the folder 'processed\graphs\bar_plots\gw_reviews' and are saved as the player's last name. 
+
+More info to come.
